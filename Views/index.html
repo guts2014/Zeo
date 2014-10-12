@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="abiyasa">
+
+    <title>Team Zeo</title>
+    
+    <link rel="stylesheet" href="css/fontstyle.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/bootstrap-responsive.css">
+    <link rel="stylesheet" href="css/simple-todos.css">
+    
+    <script data-main="js/main" src="js/libs/require/require.js"></script>
+    <script src='js/libs/jquery/jquery-min.js'></script>
+    
+    <script src="sweet-alert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="sweet-alert.css">
+    
+    <style>
+    body{
+        background: url('connected.png'), #0f8790;
+    }
+    #emailOfPerson{
+         //margin-top:24px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="todoapp">        
+        <div class="container">            
+            <div class="row">
+                <div class="page-header">
+                    <h1>Modern Digest
+                        <small style="margin-top:5px;line-height:26px;">by team Zeo (GUTS Hackathon 2014)</small>
+                    </h1>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div id="create-todo" class="well">
+                    <input id="new-todo" placeholder="Enter a task for today" type="text" class="span8" />
+                    <div class="ui-tooltip-top help-inline" style="display:none; margin-top:-10px;">Press Enter to save this task</div>
+                </div>
+            </div>
+            
+           <!-- <div class="row">
+                <div id="mark-all-done"></div>
+            </div>
+            -->
+            <div class="row">
+                <table id="todos" class="table table-bordered table-striped">
+                    <tbody id="todo-list"></tbody>
+                </table>
+            </div>
+            
+            <div class="row">
+                <div id="todo-stats"></div>
+            </div>
+            
+            <div class="row">
+                
+                <div id="credits" class="well">
+                    <div class="input-group input-group-lg">
+                        <span class="glyphicon glyphicon-envelope"></span>
+                        <form>
+                        <input type="email" id="emailOfPerson" class="form-control" placeholder="Your email">
+                        <button type="submit" id="buttonSubmitEmail" class="btn btn-default" style="height:30px; line-height:0px; margin-top:-10px;">Submit</button></form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="http://www.google.com/jsapi?key=ABQIAAAAp04yNttlQq-7b4aZI_jL5hQYPm-xtd00hTQOC0OXpAMO40FHAxQMnH50uBbWoKVHwgpklyirDEregg"></script>
+<script>
+    var visitor_city = 'Glasgow';
+    if (google.loader.ClientLocation) visitor_city = google.loader.ClientLocation.address.city;
+</script>
+    
+    <script>
+        var unsorted = [];
+        var until9 = [];
+        var until13 = [];
+        var until18 = [];
+        var nohour = [];
+        var hour = "";
+        var ampm = "";
+        $( "#buttonSubmitEmail" ).click(function(e) {
+            e.preventDefault();
+            swal("Submitted", "Your data was successfully sent to the server", "success");
+            var emailAddress = $("#emailOfPerson").val();
+            
+            $('.todo-content').each(function(index, value) {
+            
+                var htmlValue = $(value).html();
+                
+                if (htmlValue.substring(0,2) == "at"){
+                    htmlValue = htmlValue.split(' ');
+                    htmlValue.shift();
+                    hour = htmlValue.shift();
+                    ampm = htmlValue.shift();
+                    if (ampm == "pm"){ hour = parseInt(hour) + 12;}
+                    htmlValue = htmlValue.join(' ');
+                }
+                else {
+                    hour = "";
+                }
+                unsorted.push([hour, htmlValue]);
+            
+            }); // $('.todo-content
+            
+            //console.log(unsorted);
+            
+            for (var i = 0; i < unsorted.length; i++){
+
+                if (unsorted[i][0] == "") {
+                    nohour.push([unsorted[i][0], unsorted[i][1]]);
+                }
+                else if (unsorted[i][0] >= 9 && unsorted[i][0] < 13) {
+                    until9.push([parseInt(unsorted[i][0]), unsorted[i][1]]);
+                }
+                else if (unsorted[i][0] >= 13 && unsorted[i][0] < 18) {
+                    until13.push([unsorted[i][0], unsorted[i][1]]);
+                }
+                else {
+                    until18.push([unsorted[i][0], unsorted[i][1]]);
+                }
+            }
+            
+            var d = new Date(), e = new Date(d);
+            var msSinceMidnight = e - d.setHours(0,0,0,0);
+            
+            console.table(nohour);
+            console.table(until9);
+            console.table(until13);
+            console.table(until18);
+            console.log(msSinceMidnight);
+            console.log(emailAddress);
+            console.log(visitor_city);
+            
+            var combinedData = [until9, until13, until18, nohour];
+            console.log(combinedData);
+            $.post('/', {
+                city: visitor_city,
+                email: emailAddress,
+                ms: msSinceMidnight,
+                tasksList: combinedData
+            }, function(message) {
+                console.log('Post successful');
+                console.log(message);
+            });
+            
+        });
+        
+    </script>
+</body>
+
+</html>
